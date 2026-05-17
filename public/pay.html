@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayLinka — Pay Now</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00C853;
+    --green-dark: #009624;
+    --green-soft: #E8F5E9;
+    --black: #0A0A0A;
+    --gray: #6B7280;
+    --light: #F9FAF7;
+    --white: #FFFFFF;
+    --red: #EF4444;
+    --border: #E5E7EB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--light); color: var(--black); min-height: 100vh; }
+  header {
+    background: var(--black); padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--white); }
+  .logo span { color: var(--green); }
+  .main { padding: 24px 20px 60px; max-width: 480px; margin: 0 auto; }
+  .loading-card {
+    background: var(--white); border-radius: 20px; padding: 40px 20px;
+    text-align: center; border: 1px solid var(--border);
+  }
+  .spinner-lg {
+    width: 40px; height: 40px; border: 3px solid var(--border);
+    border-top-color: var(--green); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .creator-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green-soft); border: 1px solid #A5D6A7;
+    border-radius: 20px; padding: 6px 12px;
+    font-size: 13px; color: #2E7D32; font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .amount-display {
+    background: var(--black); border-radius: 20px;
+    padding: 24px 20px; text-align: center; margin-bottom: 20px;
+  }
+  .amount-label { font-size: 13px; color: #9CA3AF; margin-bottom: 4px; }
+  .amount-big {
+    font-family: 'Syne', sans-serif; font-size: 42px;
+    font-weight: 800; color: var(--green); line-height: 1;
+    margin-bottom: 4px;
+  }
+  .amount-title { font-size: 15px; color: var(--white); margin-bottom: 4px; }
+  .amount-desc { font-size: 13px; color: #9CA3AF; }
+  .card { background: var(--white); border-radius: 20px; padding: 24px 20px; border: 1px solid var(--border); margin-bottom: 16px; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+  .field { margin-bottom: 16px; }
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--gray); margin-bottom: 6px; }
+  input {
+    width: 100%; padding: 13px 16px;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    font-size: 15px; font-family: 'DM Sans', sans-serif;
+    color: var(--black); background: var(--light);
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-appearance: none; appearance: none;
+  }
+  input:focus { outline: none; border-color: var(--green); background: var(--white); }
+  .phone-wrap { position: relative; }
+  .phone-prefix {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    font-size: 15px; font-weight: 500; color: var(--gray); pointer-events: none;
+  }
+  .phone-wrap input { padding-left: 52px; }
+  .breakdown {
+    background: var(--light); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 16px;
+  }
+  .breakdown-row {
+    display: flex; justify-content: space-between;
+    font-size: 14px; padding: 4px 0;
+  }
+  .breakdown-row.total {
+    border-top: 1px solid var(--border);
+    margin-top: 8px; padding-top: 8px;
+    font-weight: 500;
+  }
+  .breakdown-row span:first-child { color: var(--gray); }
+  .btn {
+    width: 100%; padding: 16px;
+    background: var(--green); color: var(--white);
+    border: none; border-radius: 14px;
+    font-size: 16px; font-family: 'Syne', sans-serif;
+    font-weight: 700; cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.2px;
+  }
+  .btn:hover { background: var(--green-dark); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: #9CA3AF; cursor: not-allowed; transform: none; }
+  .mpesa-note {
+    display: flex; gap: 8px; align-items: flex-start;
+    font-size: 13px; color: var(--gray); line-height: 1.5;
+    margin-top: 12px;
+  }
+  .mpesa-note svg { flex-shrink: 0; margin-top: 1px; }
+  .error-msg {
+    background: #FEE2E2; border: 1px solid #FECACA;
+    color: var(--red); border-radius: 10px;
+    padding: 12px 14px; font-size: 13px;
+    margin-bottom: 16px; display: none;
+  }
+  .waiting-card {
+    display: none;
+    background: var(--white); border-radius: 20px;
+    padding: 32px 24px; border: 1px solid var(--border);
+    text-align: center;
+  }
+  .waiting-card.active { display: block; }
+  .pulse-ring {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,200,83,0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(0,200,83,0); }
+  }
+  .waiting-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .waiting-sub { font-size: 14px; color: var(--gray); line-height: 1.6; margin-bottom: 24px; }
+  .waiting-steps { text-align: left; margin-bottom: 20px; }
+  .wstep {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .wstep:last-child { border-bottom: none; }
+  .wstep-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--green-soft); color: #2E7D32;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; flex-shrink: 0; margin-top: 1px;
+  }
+  .wstep-text { font-size: 14px; line-height: 1.4; }
+  .cancel-btn {
+    width: 100%; padding: 14px;
+    background: transparent; color: var(--gray);
+    border: 1.5px solid var(--border); border-radius: 12px;
+    font-size: 14px; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; cursor: pointer;
+  }
+  .timeout-msg {
+    display: none;
+    background: #FFFBEB; border: 1px solid #FDE68A;
+    border-radius: 10px; padding: 12px 14px;
+    font-size: 13px; color: #92400E; margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Pay<span>Linka</span></div>
+  <div style="font-size:12px;color:#6B7280">Secure M-Pesa</div>
+</header>
+
+<div class="main">
+  <div class="loading-card" id="loadingCard">
+    <div class="spinner-lg"></div>
+    <p style="color:var(--gray);font-size:14px">Loading payment details...</p>
+  </div>
+
+  <div id="mainContent" style="display:none">
+    <div class="creator-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="#2E7D32"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span id="creatorBadge">Loading...</span>
+    </div>
+
+    <div class="amount-display">
+      <div class="amount-label">Amount to pay</div>
+      <div class="amount-big" id="amountDisplay">Ksh 0</div>
+      <div class="amount-title" id="titleDisplay">Loading...</div>
+      <div class="amount-desc" id="descDisplay"></div>
+    </div>
+
+    <div id="payForm">
+      <div class="card">
+        <div class="card-title">Enter your details</div>
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="timeout-msg" id="timeoutMsg">
+          The payment request timed out. Please try again.
+        </div>
+
+        <div class="field">
+          <label>Your name (optional)</label>
+          <input type="text" id="payerName" placeholder="e.g. John Kamau" autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label>Your M-Pesa number</label>
+          <div class="phone-wrap">
+            <span class="phone-prefix">+254</span>
+            <input type="tel" id="payerPhone" placeholder="7XX XXX XXX"
+              inputmode="tel" maxlength="10" autocomplete="tel">
+          </div>
+        </div>
+
+        <div class="breakdown" id="breakdown">
+          <div class="breakdown-row"><span>Payment amount</span><span id="bkAmount">Ksh 0</span></div>
+          <div class="breakdown-row"><span>Service fee</span><span id="bkFee">Ksh 3</span></div>
+          <div class="breakdown-row total"><span>Total charged</span><span id="bkTotal">Ksh 0</span></div>
+        </div>
+
+        <button class="btn" id="payBtn" onclick="initiatePayment()">
+          Pay via M-Pesa →
+        </button>
+
+        <div class="mpesa-note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+          <span>You'll get an M-Pesa prompt on your phone. Enter your PIN to complete.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="waiting-card" id="waitingCard">
+      <div class="pulse-ring">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C853" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+      </div>
+      <div class="waiting-title">Check your phone!</div>
+      <div class="waiting-sub">An M-Pesa prompt has been sent to your number. Please complete the payment.</div>
+      <div class="waiting-steps">
+        <div class="wstep">
+          <div class="wstep-num">1</div>
+          <div class="wstep-text">Look for the M-Pesa payment request popup on your phone</div>
+        </div>
+        <div class="wstep">
+          <div class="wstep-num">2</div>
+          <div class="wstep-text">Enter your M-Pesa PIN and tap <strong>Send</strong></div>
+        </div>
+        <div class="wstep">
+          <div class="wstep-num">3</div>
+          <div class="wstep-text">Wait — this page updates automatically when paid</div>
+        </div>
+      </div>
+      <button class="cancel-btn" onclick="cancelWaiting()">Use a different number</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const linkId = window.location.pathname.split('/pay/')[1];
+let linkData = null;
+let currentPaymentId = null;
+let pollInterval = null;
+let pollTimeout = null;
+
+async function loadLink() {
+  try {
+    const res = await fetch(`/api/links/${linkId}/public`);
+    if (!res.ok) throw new Error('Not found');
+    linkData = await res.json();
+
+    document.getElementById('creatorBadge').textContent = `From ${linkData.creator_name}`;
+    document.getElementById('amountDisplay').textContent = `Ksh ${(linkData.amount + linkData.fee).toLocaleString()}`;
+    document.getElementById('titleDisplay').textContent = linkData.title;
+    if (linkData.description) {
+      document.getElementById('descDisplay').textContent = linkData.description;
+    }
+    document.getElementById('bkAmount').textContent = `Ksh ${linkData.amount.toLocaleString()}`;
+    document.getElementById('bkFee').textContent = `Ksh ${linkData.fee.toLocaleString()}`;
+    document.getElementById('bkTotal').textContent = `Ksh ${(linkData.amount + linkData.fee).toLocaleString()}`;
+
+    document.title = `Pay ${linkData.title} — PayLinka`;
+    document.getElementById('loadingCard').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+  } catch (err) {
+    document.getElementById('loadingCard').innerHTML =
+      '<p style="color:#EF4444;font-size:15px">Payment link not found or expired.</p>';
+  }
+}
+
+async function initiatePayment() {
+  const btn = document.getElementById('payBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const timeoutMsg = document.getElementById('timeoutMsg');
+  errorMsg.style.display = 'none';
+  timeoutMsg.style.display = 'none';
+
+  const phone = document.getElementById('payerPhone').value.trim();
+  const payerName = document.getElementById('payerName').value.trim();
+
+  if (!phone) {
+    showError('Please enter your M-Pesa phone number.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite"></span> Sending request...';
+
+  try {
+    const res = await fetch('/api/mpesa/pay', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ link_id: linkId, phone, payer_name: payerName }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(data.error || 'Failed to send M-Pesa request. Try again.');
+      btn.disabled = false;
+      btn.innerHTML = 'Pay via M-Pesa →';
+      return;
+    }
+
+    currentPaymentId = data.payment_id;
+    document.getElementById('payForm').style.display = 'none';
+    document.getElementById('waitingCard').classList.add('active');
+    startPolling();
+  } catch (err) {
+    showError('Network error. Check your connection and try again.');
+    btn.disabled = false;
+    btn.innerHTML = 'Pay via M-Pesa →';
+  }
+}
+
+function startPolling() {
+  let attempts = 0;
+  const maxAttempts = 30;
+
+  pollInterval = setInterval(async () => {
+    attempts++;
+    if (attempts > maxAttempts) {
+      clearInterval(pollInterval);
+      document.getElementById('waitingCard').classList.remove('active');
+      document.getElementById('payForm').style.display = 'block';
+      document.getElementById('timeoutMsg').style.display = 'block';
+      document.getElementById('payBtn').disabled = false;
+      document.getElementById('payBtn').innerHTML = 'Pay via M-Pesa →';
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/links/${linkId}/status/${currentPaymentId}`);
+      const data = await res.json();
+
+      if (data.status === 'success') {
+        clearInterval(pollInterval);
+        window.location.href = `/success/${linkId}?receipt=${data.mpesa_receipt}&name=${encodeURIComponent(data.payer_name || '')}`;
+      } else if (data.status === 'failed') {
+        clearInterval(pollInterval);
+        document.getElementById('waitingCard').classList.remove('active');
+        document.getElementById('payForm').style.display = 'block';
+        showError('Payment cancelled or failed. Please try again.');
+        document.getElementById('payBtn').disabled = false;
+        document.getElementById('payBtn').innerHTML = 'Pay via M-Pesa →';
+      }
+    } catch (err) {}
+  }, 3000);
+}
+
+function cancelWaiting() {
+  clearInterval(pollInterval);
+  document.getElementById('waitingCard').classList.remove('active');
+  document.getElementById('payForm').style.display = 'block';
+  document.getElementById('payBtn').disabled = false;
+  document.getElementById('payBtn').innerHTML = 'Pay via M-Pesa →';
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+document.getElementById('payerPhone').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g, '').slice(0, 9);
+});
+
+loadLink();
+</script>
+</body>
+</html>

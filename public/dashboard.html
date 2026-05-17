@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayLinka Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00C853; --green-dark: #009624; --green-soft: #E8F5E9;
+    --black: #0A0A0A; --gray: #6B7280; --light: #F9FAF7;
+    --white: #FFFFFF; --border: #E5E7EB; --red: #EF4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--light); color: var(--black); min-height: 100vh; }
+  header {
+    background: var(--black); padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--white); }
+  .logo span { color: var(--green); }
+  .badge-live {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--green);
+  }
+  .dot-live {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .main { padding: 20px 16px 60px; max-width: 600px; margin: 0 auto; }
+  .link-header {
+    background: var(--black); border-radius: 20px;
+    padding: 20px; margin-bottom: 16px;
+  }
+  .link-name {
+    font-family: 'Syne', sans-serif; font-size: 20px;
+    font-weight: 800; color: var(--white); margin-bottom: 4px;
+  }
+  .link-creator { font-size: 13px; color: #9CA3AF; margin-bottom: 16px; }
+  .share-link-box {
+    background: #1F2937; border-radius: 10px;
+    padding: 10px 14px; display: flex;
+    align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .share-link-url {
+    flex: 1; font-size: 12px; color: var(--green);
+    font-family: monospace; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .copy-sm {
+    background: var(--green); color: white; border: none;
+    border-radius: 8px; padding: 6px 12px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    flex-shrink: 0; font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s;
+  }
+  .copy-sm:hover { background: var(--green-dark); }
+  .wa-share {
+    width: 100%; padding: 10px;
+    background: #25D366; color: white; border: none;
+    border-radius: 10px; font-size: 14px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 16px;
+  }
+  .stat {
+    background: var(--white); border-radius: 16px;
+    padding: 16px; border: 1px solid var(--border);
+  }
+  .stat-label { font-size: 12px; color: var(--gray); margin-bottom: 4px; }
+  .stat-val {
+    font-family: 'Syne', sans-serif; font-size: 24px;
+    font-weight: 800; color: var(--black); line-height: 1;
+  }
+  .stat-val.green { color: var(--green-dark); }
+  .stat-sub { font-size: 11px; color: var(--gray); margin-top: 4px; }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: 16px;
+    font-weight: 700; margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .refresh-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--gray); font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .payment-card {
+    background: var(--white); border-radius: 14px;
+    padding: 14px 16px; border: 1px solid var(--border);
+    margin-bottom: 8px; display: flex;
+    align-items: center; gap: 12px;
+  }
+  .payment-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--green-soft); color: #2E7D32;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; flex-shrink: 0;
+    font-family: 'Syne', sans-serif;
+  }
+  .payment-info { flex: 1; min-width: 0; }
+  .payment-name { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
+  .payment-phone { font-size: 12px; color: var(--gray); }
+  .payment-receipt { font-size: 11px; color: var(--gray); font-family: monospace; }
+  .payment-right { text-align: right; flex-shrink: 0; }
+  .payment-amount { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--green-dark); }
+  .payment-time { font-size: 11px; color: var(--gray); margin-top: 2px; }
+  .status-pill {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; margin-top: 3px;
+  }
+  .pill-success { background: var(--green-soft); color: #2E7D32; }
+  .pill-pending { background: #FFFBEB; color: #92400E; }
+  .pill-failed { background: #FEE2E2; color: var(--red); }
+  .empty-state {
+    background: var(--white); border-radius: 16px;
+    padding: 40px 20px; text-align: center;
+    border: 1px dashed var(--border);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-text { font-size: 14px; color: var(--gray); }
+  .loading-row {
+    background: var(--white); border-radius: 14px;
+    padding: 20px; border: 1px solid var(--border);
+    margin-bottom: 8px; display: flex; gap: 12px; align-items: center;
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #F0F0F0 25%, #E0E0E0 50%, #F0F0F0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  .error-state {
+    background: #FEE2E2; border: 1px solid #FECACA;
+    border-radius: 14px; padding: 20px; text-align: center;
+    font-size: 14px; color: var(--red);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Pay<span>Linka</span></div>
+  <div class="badge-live"><div class="dot-live"></div> Live</div>
+</header>
+
+<div class="main">
+  <div id="content">
+    <div class="loading-row">
+      <div class="skeleton" style="width:40px;height:40px;border-radius:50%;flex-shrink:0"></div>
+      <div style="flex:1"><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:11px;width:40%"></div></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat"><div class="skeleton" style="height:12px;width:70%;margin-bottom:8px"></div><div class="skeleton" style="height:28px;width:50%"></div></div>
+      <div class="stat"><div class="skeleton" style="height:12px;width:70%;margin-bottom:8px"></div><div class="skeleton" style="height:28px;width:50%"></div></div>
+      <div class="stat"><div class="skeleton" style="height:12px;width:70%;margin-bottom:8px"></div><div class="skeleton" style="height:28px;width:50%"></div></div>
+      <div class="stat"><div class="skeleton" style="height:12px;width:70%;margin-bottom:8px"></div><div class="skeleton" style="height:28px;width:50%"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const linkId = params.get('id');
+const token = params.get('token');
+
+if (!linkId || !token) {
+  document.getElementById('content').innerHTML =
+    '<div class="error-state">Invalid dashboard link. Please use the link you saved when creating your payment link.</div>';
+}
+
+function timeAgo(dateStr) {
+  const diff = (Date.now() - new Date(dateStr + 'Z')) / 1000;
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return new Date(dateStr + 'Z').toLocaleDateString('en-KE', { day:'numeric', month:'short' });
+}
+
+function initials(name) {
+  if (!name || name === 'Anonymous') return '?';
+  return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
+
+async function loadDashboard() {
+  try {
+    const res = await fetch(`/api/links/${linkId}/payments?token=${token}`);
+    if (res.status === 403) {
+      document.getElementById('content').innerHTML =
+        '<div class="error-state">Access denied. Token is invalid or expired.</div>';
+      return;
+    }
+    const { link, payments, stats } = await res.json();
+    const payUrl = `${window.location.origin}/pay/${link.id}`;
+
+    document.title = `${link.title} — Dashboard | PayLinka`;
+
+    const successPayments = payments.filter(p => p.status === 'success');
+
+    document.getElementById('content').innerHTML = `
+      <div class="link-header">
+        <div class="link-name">${link.title}</div>
+        <div class="link-creator">by ${link.creator_name} · Ksh ${link.amount.toLocaleString()} per payment</div>
+        <div class="share-link-box">
+          <div class="share-link-url">${payUrl}</div>
+          <button class="copy-sm" onclick="copyUrl('${payUrl}', this)">Copy</button>
+        </div>
+        <button class="wa-share" onclick="shareWA('${payUrl}', '${link.title}')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.554 4.103 1.523 5.824L.057 23.75l6.088-1.596A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.001-1.367l-.359-.213-3.72.976.993-3.629-.234-.373A9.817 9.817 0 012.182 12c0-5.422 4.396-9.818 9.818-9.818 5.422 0 9.818 4.396 9.818 9.818 0 5.422-4.396 9.818-9.818 9.818z"/></svg>
+          Share on WhatsApp
+        </button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="stat-label">Total collected</div>
+          <div class="stat-val green">Ksh ${(stats.total_collected || 0).toLocaleString()}</div>
+          <div class="stat-sub">Net after fees</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Payments received</div>
+          <div class="stat-val">${stats.successful || 0}</div>
+          <div class="stat-sub">successful</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Your earnings</div>
+          <div class="stat-val green">Ksh ${(stats.total_collected || 0).toLocaleString()}</div>
+          <div class="stat-sub">goes to you</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Total attempts</div>
+          <div class="stat-val">${stats.total_attempts || 0}</div>
+          <div class="stat-sub">${stats.total_attempts > 0 ? Math.round((stats.successful / stats.total_attempts) * 100) : 0}% success rate</div>
+        </div>
+      </div>
+
+      <div class="section-title">
+        Payments (${successPayments.length})
+        <button class="refresh-btn" onclick="loadDashboard()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+          Refresh
+        </button>
+      </div>
+
+      ${successPayments.length === 0 ? `
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <div class="empty-text">No payments yet. Share your link to start collecting!</div>
+        </div>
+      ` : successPayments.map(p => `
+        <div class="payment-card">
+          <div class="payment-avatar">${initials(p.payer_name)}</div>
+          <div class="payment-info">
+            <div class="payment-name">${p.payer_name || 'Anonymous'}</div>
+            <div class="payment-phone">${p.payer_phone}</div>
+            ${p.mpesa_receipt ? `<div class="payment-receipt">${p.mpesa_receipt}</div>` : ''}
+          </div>
+          <div class="payment-right">
+            <div class="payment-amount">Ksh ${p.net_amount.toLocaleString()}</div>
+            <div class="payment-time">${timeAgo(p.paid_at || p.created_at)}</div>
+            <div><span class="status-pill pill-success">Paid</span></div>
+          </div>
+        </div>
+      `).join('')}
+    `;
+  } catch (err) {
+    document.getElementById('content').innerHTML =
+      '<div class="error-state">Failed to load dashboard. Please check your connection and refresh.</div>';
+  }
+}
+
+function copyUrl(url, btn) {
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+function shareWA(url, title) {
+  const text = encodeURIComponent(`Pay *${title}* via M-Pesa:\n${url}`);
+  window.open(`https://wa.me/?text=${text}`, '_blank');
+}
+
+if (linkId && token) {
+  loadDashboard();
+  setInterval(loadDashboard, 30000);
+}
+</script>
+</body>
+</html>
