@@ -57,7 +57,7 @@ async function stkPush({ phone, amount, accountRef, description }) {
     PartyA: formattedPhone,
     PartyB: process.env.MPESA_SHORTCODE,
     PhoneNumber: formattedPhone,
-    CallBackURL: `${process.env.APP_URL}/api/mpesa/callback`,
+    CallBackURL: process.env.MPESA_CALLBACK_URL || `${process.env.APP_URL}/api/mpesa/callback`,
     AccountReference: accountRef.slice(0, 12),
     TransactionDesc: description.slice(0, 13),
   };
