@@ -3,6 +3,7 @@ const router = express.Router();
 const { nanoid } = require('nanoid');
 const { stkPush } = require('../utils/daraja');
 const { run, get } = require('../db/database');
+const logger = require('../utils/logger');
 
 router.post('/pay', async (req, res) => {
   try {
@@ -56,7 +57,7 @@ router.post('/pay', async (req, res) => {
       checkout_request_id: stkResult.CheckoutRequestID,
     });
   } catch (err) {
-    console.error('STK push error:', err?.response?.data || err.message);
+    logger.error('STK push error:', err?.response?.data || err);
     const msg = err?.response?.data?.errorMessage || 'Payment initiation failed. Try again.';
     res.status(500).json({ error: msg });
   }
@@ -87,18 +88,18 @@ router.post('/callback', async (req, res) => {
         [mpesaReceipt, checkoutId]
       );
 
-      console.log(`Payment success: ${mpesaReceipt} - KES ${amount} from ${phone}`);
+      logger.info(`Payment success: ${mpesaReceipt} - KES ${amount} from ${phone}`);
     } else {
       await run(
         "UPDATE payments SET status = 'failed' WHERE checkout_request_id = ?",
         [checkoutId]
       );
-      console.log(`Payment failed: ${body.ResultDesc}`);
+      logger.warn(`Payment failed: ${body.ResultDesc}`);
     }
 
     res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
   } catch (err) {
-    console.error('Callback error:', err);
+    logger.error('Callback error:', err);
     res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
   }
 });

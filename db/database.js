@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const logger = require('../utils/logger');
 
 const DB_PATH = path.join(__dirname, '../paylinka.db');
 
@@ -8,7 +9,7 @@ let db;
 function getDB() {
   if (!db) {
     db = new sqlite3.Database(DB_PATH, (err) => {
-      if (err) console.error('DB connection error:', err.message);
+      if (err) logger.error('DB connection error:', err);
     });
   }
   return db;
@@ -52,7 +53,7 @@ function initDB() {
       `, (err) => {
         if (err) reject(err);
         else {
-          console.log('Database initialized');
+          logger.info('Database initialized');
           resolve();
         }
       });

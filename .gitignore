@@ -2,3 +2,5 @@ node_modules/
 .env
 paylinka.db
 *.db-journal
+app.log
+*.log

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { nanoid } = require('nanoid');
 const { run, get, all } = require('../db/database');
+const logger = require('../utils/logger');
 
 const FEE_FLAT = parseFloat(process.env.FEE_FLAT || '3');
 
@@ -35,7 +36,7 @@ router.post('/create', async (req, res) => {
       dashboard_url: `${process.env.APP_URL}/dashboard.html?id=${id}&token=${secret_token}`,
     });
   } catch (err) {
-    console.error('Create link error:', err);
+    logger.error('Create link error:', err);
     res.status(500).json({ error: 'Failed to create payment link' });
   }
 });

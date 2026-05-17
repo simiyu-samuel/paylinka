@@ -5,6 +5,7 @@ const path = require('path');
 const { initDB } = require('./db/database');
 const linksRouter = require('./routes/links');
 const mpesaRouter = require('./routes/mpesa');
+const logger = require('./utils/logger');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,6 +32,6 @@ app.get('/', (req, res) => {
 
 initDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`PayLinka running on http://localhost:${PORT}`);
+    logger.info(`PayLinka running on http://localhost:${PORT}`);
   });
 });
